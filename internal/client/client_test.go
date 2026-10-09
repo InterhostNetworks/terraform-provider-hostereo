@@ -78,7 +78,7 @@ func TestErrorDecodingAndKeyNotInError(t *testing.T) {
 		w.WriteHeader(409)
 		_, _ = w.Write([]byte(`{"error":{"code":"deletion_protected","message":"protected","status":409},"meta":{"request_id":"abc"}}`))
 	})
-	_, err := c.DeleteInstance(context.Background(), "i1", "web")
+	_, err := c.DeleteInstance(context.Background(), "i1", "web", true, false)
 	if !HasCode(err, "deletion_protected") {
 		t.Fatalf("err = %v", err)
 	}

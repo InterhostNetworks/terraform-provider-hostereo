@@ -33,6 +33,15 @@ resource "hostereo_instance" "web" {
 
   # Deletion protection is on for every new instance and can only be turned off
   # in the Hostereo console. Until then `terraform destroy` fails on purpose.
+
+  # On destroy: keep backups (default true; kept backups stay billed) and take
+  # no final snapshot (default false).
+  keep_backups_on_destroy = true
+  snapshot_on_destroy     = false
+}
+
+output "ip" {
+  value = hostereo_instance.web.ipv4
 }
 
 output "deletion_protection" {

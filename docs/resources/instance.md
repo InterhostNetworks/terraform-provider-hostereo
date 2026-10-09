@@ -51,6 +51,15 @@ resource "hostereo_instance" "web" {
 
   # Deletion protection is on for every new instance and can only be turned off
   # in the Hostereo console. Until then `terraform destroy` fails on purpose.
+
+  # On destroy: keep backups (default true; kept backups stay billed) and take
+  # no final snapshot (default false).
+  keep_backups_on_destroy = true
+  snapshot_on_destroy     = false
+}
+
+output "ip" {
+  value = hostereo_instance.web.ipv4
 }
 
 output "deletion_protection" {
@@ -75,9 +84,11 @@ output "deletion_protection" {
 - `application_version_id` (String) Application version (`marketplace_version_id`) from `hostereo_applications`. Changing it replaces the instance.
 - `billing` (String) `prepaid_monthly` (default, paid from balance) or `postpaid`. Only used when the instance is created; changing it later is ignored (a warning is shown).
 - `image_id` (String) OS image UUID from `hostereo_images`. Exactly one of `image_id` or `application_version_id`. Changing it replaces the instance.
+- `keep_backups_on_destroy` (Boolean) Keep the instance's backups when it is destroyed (default `true`, like the API). Kept backups remain billed until you delete them in the console.
 - `password` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Root password (12–50 chars, upper, lower, digit and symbol). Required unless `ssh_key_ids` is set. **Write-only**: sent once at creation and never stored in Terraform state or plan (needs Terraform 1.11+). Changing it later does nothing.
 - `power_state` (String) `running` or `stopped`. When set, Terraform starts or stops the instance to match.
 - `project_id` (String) Project UUID (`hostereo_project`). Updated in place.
+- `snapshot_on_destroy` (Boolean) Take a final snapshot before the instance is destroyed (default `false`).
 - `ssh_key_ids` (List of Number) Ids of SSH keys saved on your account. Required unless `password` is set. Only used when the instance is created; changing it later is ignored (a warning is shown).
 - `tag_ids` (Set of String) Tag UUIDs (`hostereo_tag`), at most 25. Updated in place.
 - `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
@@ -89,6 +100,7 @@ output "deletion_protection" {
 - `deletion_protection` (Boolean) Read-only. Server-side protection against deletion, on by default for every instance. It can only be turned off in the Hostereo console (instance Overview → API delete protection); while it is on, `terraform destroy` fails.
 - `disk_gb` (Number)
 - `id` (String) Instance UUID.
+- `ipv4` (String) The instance's public IPv4 as shown in the console (reserved IPs not included). Null until an address is assigned.
 - `locked` (Boolean) Whether the instance is locked (e.g. unpaid invoice).
 - `memory_mb` (Number)
 - `plan_name` (String)

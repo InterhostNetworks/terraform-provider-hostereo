@@ -299,6 +299,7 @@ type instanceDSModel struct {
 	DiskGB             types.Int64  `tfsdk:"disk_gb"`
 	Locked             types.Bool   `tfsdk:"locked"`
 	DeletionProtection types.Bool   `tfsdk:"deletion_protection"`
+	IPv4               types.String `tfsdk:"ipv4"`
 	CreatedAt          types.String `tfsdk:"created_at"`
 }
 
@@ -326,6 +327,7 @@ func (d *instanceDS) Schema(_ context.Context, _ datasource.SchemaRequest, resp 
 			"disk_gb":             schema.Int64Attribute{Computed: true},
 			"locked":              schema.BoolAttribute{Computed: true},
 			"deletion_protection": schema.BoolAttribute{Computed: true},
+			"ipv4":                schema.StringAttribute{Computed: true, MarkdownDescription: "Public IPv4 as shown in the console; null until assigned."},
 			"created_at":          schema.StringAttribute{Computed: true},
 		},
 	}
@@ -385,6 +387,10 @@ func (d *instanceDS) Read(ctx context.Context, req datasource.ReadRequest, resp 
 	m.DeletionProtection = types.BoolNull()
 	if inst.DeletionProtection != nil {
 		m.DeletionProtection = types.BoolValue(*inst.DeletionProtection)
+	}
+	m.IPv4 = types.StringNull()
+	if inst.IPv4 != nil && *inst.IPv4 != "" {
+		m.IPv4 = types.StringValue(*inst.IPv4)
 	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, &m)...)
 }

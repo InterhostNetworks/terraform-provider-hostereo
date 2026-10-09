@@ -102,6 +102,7 @@ type Instance struct {
 	Locked             bool          `json:"locked"`
 	CreatedAt          string        `json:"created_at"`
 	DeletionProtection *bool         `json:"deletion_protection"`
+	IPv4               *string       `json:"ipv4"`
 }
 
 type InstanceStatus struct {
@@ -227,8 +228,11 @@ func (c *Client) ResizeInstance(ctx context.Context, id, planID string) (*Operat
 
 // DeleteInstance returns the operation, or nil if the API answered without
 // one. The API refuses with 409 deletion_protected while protection is on.
-func (c *Client) DeleteInstance(ctx context.Context, id, confirmName string) (*Operation, error) {
-	resp, err := c.Do(ctx, http.MethodDelete, "/instances/"+url.PathEscape(id), nil, map[string]any{"confirm": confirmName}, nil)
+// keepBackups (API default true) keeps the instance's backups after deletion;
+// snapshot takes a final snapshot first.
+func (c *Client) DeleteInstance(ctx context.Context, id, confirmName string, keepBackups, snapshot bool) (*Operation, error) {
+	body := map[string]any{"confirm": confirmName, "keep_backups": keepBackups, "snapshot": snapshot}
+	resp, err := c.Do(ctx, http.MethodDelete, "/instances/"+url.PathEscape(id), nil, body, nil)
 	if err != nil {
 		return nil, err
 	}

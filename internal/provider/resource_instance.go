@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -56,6 +57,9 @@ type instanceModel struct {
 	TagIDs               types.Set      `tfsdk:"tag_ids"`
 	PowerState           types.String   `tfsdk:"power_state"`
 	DeletionProtection   types.Bool     `tfsdk:"deletion_protection"`
+	KeepBackupsOnDestroy types.Bool     `tfsdk:"keep_backups_on_destroy"`
+	SnapshotOnDestroy    types.Bool     `tfsdk:"snapshot_on_destroy"`
+	IPv4                 types.String   `tfsdk:"ipv4"`
 	Status               types.String   `tfsdk:"status"`
 	Locked               types.Bool     `tfsdk:"locked"`
 	CreatedAt            types.String   `tfsdk:"created_at"`
@@ -156,6 +160,23 @@ func (r *instanceResource) Schema(ctx context.Context, _ resource.SchemaRequest,
 				Computed:            true,
 				MarkdownDescription: "Read-only. Server-side protection against deletion, on by default for every instance. It can only be turned off in the Hostereo console (instance Overview → API delete protection); while it is on, `terraform destroy` fails.",
 				PlanModifiers:       []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
+			},
+			"keep_backups_on_destroy": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
+				MarkdownDescription: "Keep the instance's backups when it is destroyed (default `true`, like the API). Kept backups remain billed until you delete them in the console.",
+			},
+			"snapshot_on_destroy": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+				MarkdownDescription: "Take a final snapshot before the instance is destroyed (default `false`).",
+			},
+			"ipv4": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The instance's public IPv4 as shown in the console (reserved IPs not included). Null until an address is assigned.",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"status":     schema.StringAttribute{Computed: true, MarkdownDescription: "Platform status, e.g. `available`, `stopped`, `processing`."},
 			"locked":     schema.BoolAttribute{Computed: true, MarkdownDescription: "Whether the instance is locked (e.g. unpaid invoice)."},
@@ -324,6 +345,17 @@ func (r *instanceResource) refresh(ctx context.Context, m *instanceModel, diags 
 	} else if m.DeletionProtection.IsUnknown() {
 		m.DeletionProtection = types.BoolNull()
 	}
+	m.IPv4 = types.StringNull()
+	if inst.IPv4 != nil && *inst.IPv4 != "" {
+		m.IPv4 = types.StringValue(*inst.IPv4)
+	}
+	// Destroy-time options are local; after an import they are unset, so use the defaults.
+	if m.KeepBackupsOnDestroy.IsNull() || m.KeepBackupsOnDestroy.IsUnknown() {
+		m.KeepBackupsOnDestroy = types.BoolValue(true)
+	}
+	if m.SnapshotOnDestroy.IsNull() || m.SnapshotOnDestroy.IsUnknown() {
+		m.SnapshotOnDestroy = types.BoolValue(false)
+	}
 
 	if st, err := r.client.GetInstanceStatus(ctx, id); err == nil {
 		switch st.Status {
@@ -461,7 +493,8 @@ func (r *instanceResource) Delete(ctx context.Context, req resource.DeleteReques
 		return // already gone
 	}
 
-	op, err := r.client.DeleteInstance(ctx, id, name)
+	keepBackups := state.KeepBackupsOnDestroy.IsNull() || state.KeepBackupsOnDestroy.IsUnknown() || state.KeepBackupsOnDestroy.ValueBool()
+	op, err := r.client.DeleteInstance(ctx, id, name, keepBackups, state.SnapshotOnDestroy.ValueBool())
 	if err != nil {
 		switch {
 		case client.IsNotFound(err):
@@ -541,5 +574,8 @@ func fillUnknownComputed(m *instanceModel) {
 	}
 	if m.DeletionProtection.IsUnknown() {
 		m.DeletionProtection = types.BoolNull()
+	}
+	if m.IPv4.IsUnknown() {
+		m.IPv4 = types.StringNull()
 	}
 }

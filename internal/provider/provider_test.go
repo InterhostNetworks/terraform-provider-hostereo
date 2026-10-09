@@ -103,6 +103,9 @@ func TestInstanceLifecycle(t *testing.T) {
 					resource.TestCheckResourceAttr("hostereo_instance.web", "plan_name", "Basic"),
 					resource.TestCheckResourceAttr("hostereo_instance.web", "power_state", "running"),
 					resource.TestCheckResourceAttr("hostereo_instance.web", "deletion_protection", "false"),
+					resource.TestCheckResourceAttr("hostereo_instance.web", "ipv4", "203.0.113.10"),
+					resource.TestCheckResourceAttr("hostereo_instance.web", "keep_backups_on_destroy", "true"),
+					resource.TestCheckResourceAttr("hostereo_instance.web", "snapshot_on_destroy", "false"),
 					resource.TestCheckResourceAttr("hostereo_instance.web", "region_id", "33333333-3333-4333-8333-333333333333"),
 					resource.TestCheckNoResourceAttr("hostereo_instance.web", "password"),
 					resource.TestCheckResourceAttrSet("hostereo_instance.web", "id"),
@@ -172,6 +175,10 @@ resource "hostereo_tag" "t" { name = "prod" }
 	// destroy sent the name as confirmation
 	if len(m.DeleteBodies) == 0 || m.DeleteBodies[len(m.DeleteBodies)-1]["confirm"] != "web-1" {
 		t.Fatalf("delete confirm body wrong: %v", m.DeleteBodies)
+	}
+	// destroy keeps backups by default (same as the API default) and takes no snapshot
+	if last := m.DeleteBodies[len(m.DeleteBodies)-1]; last["keep_backups"] != true || last["snapshot"] != false {
+		t.Fatalf("delete options wrong: %v", last)
 	}
 	for _, i := range m.instances {
 		if !i.Deleted {

@@ -32,6 +32,7 @@ data "hostereo_instance" "web" {
 - `deletion_protection` (Boolean)
 - `disk_gb` (Number)
 - `id` (String) The ID of this resource.
+- `ipv4` (String) Public IPv4 as shown in the console; null until assigned.
 - `locked` (Boolean)
 - `memory_mb` (Number)
 - `plan_id` (String)

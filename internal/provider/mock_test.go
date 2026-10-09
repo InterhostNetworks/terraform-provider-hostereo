@@ -77,6 +77,7 @@ func (m *mockAPI) instanceJSON(i *mockInstance) map[string]any {
 		"region":              map[string]any{"id": "33333333-3333-4333-8333-333333333333", "name": "Tel Aviv", "slug": "tlv-dc-1"},
 		"plan":                plans[i.PlanID],
 		"deletion_protection": i.Protected,
+		"ipv4":                "203.0.113.10",
 	}
 }
 
