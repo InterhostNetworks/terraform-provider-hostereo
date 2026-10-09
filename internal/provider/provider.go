@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/hostereo/terraform-provider-hostereo/internal/client"
+	"github.com/InterhostNetworks/terraform-provider-hostereo/internal/client"
 )
 
 var _ provider.Provider = (*hostereoProvider)(nil)

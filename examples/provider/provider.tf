@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     hostereo = {
-      source  = "hostereo/hostereo"
+      source  = "interhostnetworks/hostereo"
       version = "~> 0.1"
     }
   }

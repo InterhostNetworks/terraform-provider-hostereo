@@ -14,7 +14,7 @@ Full documentation is in [`docs/`](docs/) (rendered on the Terraform Registry).
 terraform {
   required_providers {
     hostereo = {
-      source  = "hostereo/hostereo"
+      source  = "interhostnetworks/hostereo"
       version = "~> 0.1"
     }
   }
@@ -77,7 +77,7 @@ Use a local build without publishing via `~/.terraformrc`:
 ```hcl
 provider_installation {
   dev_overrides {
-    "hostereo/hostereo" = "/path/to/terraform-provider-hostereo"
+    "interhostnetworks/hostereo" = "/path/to/terraform-provider-hostereo"
   }
   direct {}
 }

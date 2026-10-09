@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/hostereo/terraform-provider-hostereo/internal/client"
+	"github.com/InterhostNetworks/terraform-provider-hostereo/internal/client"
 )
 
 func sprintf(f string, a ...any) string { return fmt.Sprintf(f, a...) }

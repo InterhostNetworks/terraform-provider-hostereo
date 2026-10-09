@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 
-	"github.com/hostereo/terraform-provider-hostereo/internal/provider"
+	"github.com/InterhostNetworks/terraform-provider-hostereo/internal/provider"
 )
 
 // version is set by goreleaser at build time.
@@ -21,7 +21,7 @@ func main() {
 	flag.Parse()
 
 	err := providerserver.Serve(context.Background(), provider.New(version), providerserver.ServeOpts{
-		Address: "registry.terraform.io/hostereo/hostereo",
+		Address: "registry.terraform.io/interhostnetworks/hostereo",
 		Debug:   debug,
 	})
 	if err != nil {

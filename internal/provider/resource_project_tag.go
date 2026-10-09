@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/hostereo/terraform-provider-hostereo/internal/client"
+	"github.com/InterhostNetworks/terraform-provider-hostereo/internal/client"
 )
 
 const forgetDetail = "The Hostereo API has no delete for %s, so Terraform only removed it from state. It still exists in your account; delete it in the Hostereo console if you no longer need it."

@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 
-	"github.com/hostereo/terraform-provider-hostereo/internal/client"
+	"github.com/InterhostNetworks/terraform-provider-hostereo/internal/client"
 )
 
 // clientFrom extracts the API client from provider data. requireKey adds an

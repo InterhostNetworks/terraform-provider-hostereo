@@ -1,4 +1,4 @@
-module github.com/hostereo/terraform-provider-hostereo
+module github.com/InterhostNetworks/terraform-provider-hostereo
 
 go 1.27.2
 
